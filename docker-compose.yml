@@ -1,0 +1,32 @@
+version: "2"
+
+services:
+  db:
+    image: rethinkdb
+    ports:
+      - 8080:8080
+      - 28015:28015
+    volumes:
+      - .:/data
+
+  app: &app
+    image: node
+    volumes:
+      - .:/usr/app
+    working_dir: /usr/app
+    depends_on:
+      - db
+    links:
+      - db
+    stdin_open: true
+    tty: true
+    environment:
+      - DBPORT=28015
+      - DBHOST=productionapi_db_1
+      - DBNAME=productionapi
+
+  web:
+    <<: *app
+    command: npm run start
+    ports:
+      - 9000:9000
